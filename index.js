@@ -1,26 +1,31 @@
 const express = require('express');
-const { MessagingResponse } = require('twilio').twiml;
+const bodyParser = require('body-parser');
+const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
 const app = express();
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// Salud para comprobar que vive
-app.get('/', (req, res) => res.send('Bot de WhatsApp activo 🚀'));
-
-// Webhook que Twilio llamará por POST
 app.post('/whatsapp', (req, res) => {
   const twiml = new MessagingResponse();
-  const body = (req.body?.Body || '').trim();
 
-  const reply =
-    body.toLowerCase() === 'hola'
-      ? '¡Hola! Soy tu bot de prueba 🤖'
-      : `Recibí: "${body}" ✅`;
+  const msg = req.body.Body ? req.body.Body.toLowerCase().trim() : "";
 
-  twiml.message(reply);
-  res.type('text/xml').send(twiml.toString());
+  if (msg.includes("hola")) {
+    twiml.message("👋 ¡Hola! Bienvenido a nuestro bot de prueba. ¿Quieres conocer nuestros *horarios*, *precios* o más *info*?");
+  } else if (msg.includes("horario")) {
+    twiml.message("🕒 Nuestro horario es de lunes a viernes de 9am a 6pm, y sábados de 9am a 1pm.");
+  } else if (msg.includes("info")) {
+    twiml.message("ℹ️ Somos una academia de cursos online. Te ayudamos a aprender programación desde cero 🚀.");
+  } else {
+    twiml.message(`Recibí: "${req.body.Body}" ✅ (escribe *hola*, *horario* o *info*)`);
+  }
+
+  res.writeHead(200, { 'Content-Type': 'text/xml' });
+  res.end(twiml.toString());
 });
 
-// Render/Heroku/railway usan PORT de entorno
+// Ruta de prueba para el navegador
+app.get('/', (req, res) => res.send('Bot de WhatsApp activo 🚀 (Día 3 listo)'));
+
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Escuchando en ' + port));
+app.listen(port, () => console.log(`Escuchando en ${port}`));
