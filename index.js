@@ -5,9 +5,10 @@ const { google } = require('googleapis');
 
 // === Configuración Google Sheets ===
 const auth = new google.auth.GoogleAuth({
-  keyFile: 'bot-sheets.json', // <-- nombre exacto de tu JSON subido
+  credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
+
 
 const sheets = google.sheets({ version: 'v4', auth });
 const SPREADSHEET_ID = 'TU_ID_DE_HOJA'; // <-- pega el ID de tu hoja de cálculo
@@ -52,3 +53,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Bot escuchando en puerto ${PORT}`);
 });
+
